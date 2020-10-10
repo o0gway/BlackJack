@@ -1,0 +1,34 @@
+AllCops:
+  NewCops: enable
+  Exclude:
+    - './test.rb'
+
+Layout/LineLength:
+  Max: 120
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/ClassVars:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/BlockLength:
+  Max: 40
+
+Metrics/ClassLength:
+  Max: 300
+
+Metrics/CyclomaticComplexity:
+  Max: 20
