@@ -6,6 +6,7 @@ username = gets
 
 userbalance = 100
 dealerbalance = 100
+bet = 10
 cards = {
   ch_2: 2, ch_3: 3, ch_4: 4, ch_5: 5, ch_6: 6, ch_7: 7, ch_8: 8, ch_9: 9, ch_10: 10, ch_v: 10, ch_d: 10, ch_k: 10, ch_t: 11,
   k_2: 2, k_3: 3, k_4: 4, k_5: 5, k_6: 6, k_7: 7, k_8: 8, k_9: 9, k_10: 10, k_v: 10, k_d: 10, k_k: 10, k_t: 11,
@@ -27,5 +28,10 @@ loop do
 
   puts '*' * 80
   puts "Ставка $10"
+  userbalance -= bet
+  dealerbalance -= bet
+
+  user_cards_and_scores = cards.to_a.sample(2).to_h
+  dealer_cards_and_scores = cards.to_a.sample(2).to_h
 
 end
