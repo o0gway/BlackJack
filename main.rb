@@ -13,6 +13,7 @@ class Interface
     @userbalance = 100
     @dealerbalance = 100
     @bet = 10
+    @gain = 20
 
 
     loop do
@@ -44,7 +45,7 @@ class Interface
 
       def cards_on_hand(user)
         user << @cards.delete_at(rand(0..@cards.size))
-        user[-1][-1]
+        user[-1][1]
       end
 
       # byebug
@@ -64,13 +65,45 @@ class Interface
       puts 'Выберите действие:'
       puts '1. Взять еще одну карту'
       puts '2. Пропустить ход'
+      puts '2. Открыть карты'
       user_choice = gets.to_i
 
       case user_choice
       when 1
-
+        cards_on_hand(user_cards) # Third card
+        if user_score <= 10 && user_cards[-1][1] == 11
+          user_score += 11
+        elsif user_score >= 11 && user_cards[-1][1] == 11
+          user_score += 1
+        else
+          user_score += user_cards[-1][1]
+        end
       when 2
+        if dealer_score > 17
+          puts 'Dealer пропускает ход!'
+        elsif dealer_score < 17
+          cards_on_hand(dealer_cards)
+          if dealer_score <= 10 dealer_cards[-1][1] == 11
+            dealer_score += 11
+          elsif dealer_score >= 11 dealer_cards[-1][1] == 11
+            dealer_score += 1
+          else
+            dealer_score += dealer_cards[-1][1]
+          end
+        end
+      end
 
+      if (user_score > 21 && dealer_score > 21) || (user_score == dealer_score)
+        puts 'Ничья!'
+        @userbalance += @bet
+        @dealerbalance += @bet
+      elsif user_score > dealer_score && user_score <= 21
+        puts "#{@username}: #{user_score} / Dealer: #{dealer_score}"
+        puts "Победил #{@username}!"
+        @userbalance += @gain
+      elsif user_score < dealer_score && dealer_score <= 21
+        puts "#{@username}: #{user_score} / Dealer: #{dealer_score}"
+        puts "Победил Dealer!"
       end
     end
   end
