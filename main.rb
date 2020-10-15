@@ -8,15 +8,18 @@ puts
 class Interface
   def run
     print 'Пожалуйста введите ваше имя: '
-    @username = gets.strip.capitalize
+    @player_name = gets.strip.capitalize
 
     @userbalance = 100
     @dealerbalance = 100
     @bet = 10
+    puts 'Баланс на начало игры: '
+    puts "Игрок #{@player_name}: #{@userbalance} / Dealer: #{@dealerbalance}"
+    puts
 
     loop do
       def goodbye
-        puts "#{@username}, ваш баланс: $#{@userbalance}"
+        puts "#{@player_name}, ваш баланс: $#{@userbalance}"
         puts 'Досвидание, будем ждать вас еще!'
         exit
       end
@@ -33,7 +36,7 @@ class Interface
 
       @bank = 0
       @dealer_score = 0
-      @user_score = 0
+      @player_score = 0
 
       print 'Сыграем? Нажимите Enter, чтобы продложить...'
       userchoice = gets.strip
@@ -41,12 +44,11 @@ class Interface
       goodbye if userchoice != ''
 
       puts '*' * 80
-      puts "Баланс #{@username}: #{@userbalance} / Dealer: #{@dealerbalance}"
-      puts "Ставка $10"
+      puts "Ставка игры $10"
       @userbalance -= @bet
       @dealerbalance -= @bet
       @bank = 20
-      @user_cards = []
+      @player_cards = []
       @dealer_cards = []
 
       def cards_on_hand(user)
@@ -54,13 +56,12 @@ class Interface
         user[-1][1]
       end
 
-      # byebug
-      @user_score += cards_on_hand(@user_cards) # First card
-      cards_on_hand(@user_cards) # Second card
-      if @user_cards[-1][1] == @user_cards[0][1] && @user_cards[0][1] == 11
-        @user_score += 1
+      @player_score += cards_on_hand(@player_cards) # First card
+      cards_on_hand(@player_cards) # Second card
+      if @player_cards[-1][1] == @player_cards[0][1] && @player_cards[0][1] == 11
+        @player_score += 1
       else
-        @user_score += @user_cards[-1][1]
+        @player_score += @player_cards[-1][1]
       end
 
       @dealer_score += cards_on_hand(@dealer_cards) # First card
@@ -74,75 +75,25 @@ class Interface
       def show_cards(player)
         player.to_h.each_key.with_index(1) {|card, index| puts "#{index}. #{card}"}
       end
-      puts "Ваши карты: "
-      show_cards(@user_cards)
-      puts
-      puts "Ваши текущие очки: #{@user_score}"
-      puts
 
-      puts '1. Взять еще одну карту'
-      puts '2. Пропустить ход'
-      puts '3. Открыть карты'
-      print 'Выберите действие: '
-      user_choice = gets.to_i
-
-      def check_score
-        if (@user_score > 21 && @dealer_score > 21) || (@user_score == @dealer_score)
-          puts '*' * 80
-          puts "Карты игрока: "
-          show_cards(@user_cards)
-          puts
-          puts "Карты Dealer: "
-          show_cards(@dealer_cards)
-          puts
-          puts "#{@username}: #{@user_score} / Dealer: #{@dealer_score}"
-          puts
-          puts 'Ничья!'
-          puts
-          @userbalance += @bank/2
-          @dealerbalance += @bank
-        elsif @user_score > @dealer_score && @user_score <= 21
-          puts '*' * 80
-          puts "Карты игрока: "
-          show_cards(@user_cards)
-          puts
-          puts "Карты Dealer: "
-          show_cards(@dealer_cards)
-          puts '*' * 80
-          puts "#{@username}: #{@user_score} / Dealer: #{@dealer_score}"
-          puts "Победил #{@username}!"
-          puts
-          @userbalance += @bank
-        elsif @user_score < @dealer_score && @dealer_score <= 21
-          puts '*' * 80
-          puts "Карты игрока: "
-          show_cards(@user_cards)
-          puts
-          puts "Карты Dealer: "
-          show_cards(@dealer_cards)
-          puts "#{@username}: #{@user_score} / Dealer: #{@dealer_score}"
-          puts '*' * 80
-          puts 'Победил Dealer!'
-          puts
-          @dealerbalance += @bank
+      def player_turn
+        cards_on_hand(@player_cards) # Third card
+        if @player_score <= 10 && @player_cards[-1][1] == 11
+          @player_score += 11
+        elsif @player_score >= 11 && @player_cards[-1][1] == 11
+          @player_score += 1
+        else
+          @player_score += @player_cards[-1][1]
         end
       end
 
-      case user_choice
-      when 1
-        cards_on_hand(@user_cards) # Third card
-        if @user_score <= 10 && @user_cards[-1][1] == 11
-          @user_score += 11
-        elsif @user_score >= 11 && @user_cards[-1][1] == 11
-          @user_score += 1
-        else
-          @user_score += @user_cards[-1][1]
-        end
-      when 2
+      def dealer_turn
         puts
         puts 'Dealer думает...'
-        sleep 3
-        if @dealer_score > 17
+        puts
+        sleep 1
+
+        if @dealer_score >= 17
           puts 'Dealer пропускает ход!'
           puts
         elsif @dealer_score < 17
@@ -155,11 +106,94 @@ class Interface
             @dealer_score += @dealer_cards[-1][1]
           end
         end
-      when 3
-        check_score
       end
 
-      check_score if @user_cards.size == 3 && @dealer_cards.size == 3
+      def check_score
+        if (@player_score > 21 && @dealer_score > 21) || (@player_score == @dealer_score)
+          puts '*' * 80
+          puts "Карты игрока: "
+          show_cards(@player_cards)
+          puts
+          puts "Карты Dealer: "
+          show_cards(@dealer_cards)
+          puts
+          puts "Очки игроков: "
+          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts
+          puts 'Ничья!'
+          puts
+          @userbalance += (@bank / 2)
+          @dealerbalance += (@bank / 2)
+        elsif (@player_score > @dealer_score) && (@player_score <= 21)
+          puts '*' * 80
+          puts "Карты игрока: "
+          show_cards(@player_cards)
+          puts
+          puts "Карты Dealer: "
+          show_cards(@dealer_cards)
+          puts
+          puts '*' * 80
+          puts "Очки игроков: "
+          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts "Победил #{@player_name}!"
+          puts
+          @userbalance += @bank
+        elsif (@player_score < @dealer_score) && (@dealer_score <= 21)
+          puts '*' * 80
+          puts "Карты игрока: "
+          show_cards(@player_cards)
+          puts
+          puts "Карты Dealer: "
+          show_cards(@dealer_cards)
+          puts
+          puts "Очки игроков: "
+          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts '*' * 80
+          puts 'Победил Dealer!'
+          puts
+          @dealerbalance += @bank
+        end
+      end
+
+      while @player_cards.size != 3 && @dealer_cards.size != 3
+        puts "Ваши карты: "
+        show_cards(@player_cards)
+        puts
+        puts "Ваши текущие очки: #{@player_score}"
+        puts
+
+        puts '1. Взять еще одну карту'
+        puts '2. Пропустить ход'
+        puts '3. Открыть карты'
+        print 'Выберите действие: '
+        user_choice = gets.to_i
+
+        case user_choice
+        when 1
+          player_turn
+          if @dealer_cards.size != 3
+            dealer_turn
+            check_score
+            break
+          else
+            check_score
+            break
+          end
+        when 2
+          dealer_turn
+          check_score
+          break
+        when 3
+          check_score
+          break
+        end
+      end
+
+      # check_score if @player_cards.size == 3 && @dealer_cards.size == 3
+      puts 'Баланс на конец игры: '
+      puts "Игрок #{@player_name}: #{@userbalance} / Dealer: #{@dealerbalance}"
+      puts '*' * 80
+      puts
     end
   end
 end
