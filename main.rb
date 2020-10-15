@@ -7,8 +7,14 @@ puts 'Добро пожаловать в игру BlackJack'
 puts
 class Interface
   def run
-    print 'Пожалуйста введите ваше имя: '
-    @player_name = gets.strip.capitalize
+    begin
+      print 'Пожалуйста введите ваше имя: '
+      @player_name = gets.strip.capitalize
+      raise 'Имя не может быть пустым!' if @player_name == ''
+    rescue StandardError => e
+      puts "Error: #{e.message}"
+      retry
+    end
 
     @userbalance = 100
     @dealerbalance = 100
@@ -156,17 +162,25 @@ class Interface
       end
 
       while @player_cards.size != 3 && @dealer_cards.size != 3
-        puts "Ваши карты: "
-        show_cards(@player_cards)
-        puts
-        puts "Ваши текущие очки: #{@player_score}"
-        puts
+        begin
+          puts "Ваши карты: "
+          show_cards(@player_cards)
+          puts
+          puts "Ваши текущие очки: #{@player_score}"
+          puts
 
-        puts '1. Взять еще одну карту'
-        puts '2. Пропустить ход'
-        puts '3. Открыть карты'
-        print 'Выберите действие: '
-        user_choice = gets.to_i
+          puts '1. Взять еще одну карту'
+          puts '2. Пропустить ход'
+          puts '3. Открыть карты'
+          print 'Выберите действие: '
+          user_choice = gets.to_i
+          puts
+          raise 'Такого пункта в списке нет. Пожалуйста попробуйте еще раз!' if user_choice != 1 && user_choice != 2 && user_choice != 3
+          puts
+        rescue StandardError => e
+          puts "Error: #{e.message}"
+          retry
+        end
 
         case user_choice
         when 1
