@@ -23,8 +23,8 @@ class Interface
       }
       @cards = @cards.to_a
       @bank = 0
-      dealer_score = 0
-      user_score = 0
+      @dealer_score = 0
+      @user_score = 0
       print 'Сыграем? Нажимите Enter, чтобы продложить...'
       userchoice = gets.strip
 
@@ -37,8 +37,9 @@ class Interface
       puts '*' * 80
       puts "Баланс #{@username}: #{@userbalance} / Dealer: #{@dealerbalance}"
       puts "Ставка $10"
-      @bank = @userbalance - @bet
-      @bank = @dealerbalance - @bet
+      @userbalance -= @bet
+      @dealerbalance -= @bet
+      @bank = 20
       user_cards = []
       dealer_cards = []
 
@@ -48,65 +49,66 @@ class Interface
       end
 
       # byebug
-      user_score += cards_on_hand(user_cards) # First card
-      user_score += cards_on_hand(user_cards) # Second card
-      dealer_score += cards_on_hand(dealer_cards) # First card
-      dealer_score += cards_on_hand(dealer_cards) # Second card
+      @user_score += cards_on_hand(user_cards) # First card
+      @user_score += cards_on_hand(user_cards) # Second card
+      @dealer_score += cards_on_hand(dealer_cards) # First card
+      @dealer_score += cards_on_hand(dealer_cards) # Second card
 
       puts "Ваши карты: "
       user_cards.to_h.each_key.with_index(1) {|card, index| puts "#{index}. #{card}"}
       puts
-      puts "Ваши текущие очки: #{user_score}"
+      puts "Ваши текущие очки: #{@user_score}"
+      puts
 
-      puts 'Выберите действие:'
       puts '1. Взять еще одну карту'
       puts '2. Пропустить ход'
       puts '3. Открыть карты'
+      print 'Выберите действие: '
       user_choice = gets.to_i
+
+      def check_score
+        if (@user_score > 21 && @dealer_score > 21) || (@user_score == @dealer_score)
+          puts 'Ничья!'
+          @userbalance += @bank/2
+          @dealerbalance += @bank
+        elsif @user_score > @dealer_score && @user_score <= 21
+          puts "#{@username}: #{@user_score} / Dealer: #{@dealer_score}"
+          puts "Победил #{@username}!"
+          @userbalance += @bank
+        elsif @user_score < @dealer_score && @dealer_score <= 21
+          puts "#{@username}: #{@user_score} / Dealer: #{@dealer_score}"
+          puts 'Победил Dealer!'
+          @dealerbalance += @bank
+        end
+      end
 
       case user_choice
       when 1
         cards_on_hand(user_cards) # Third card
-        if user_score <= 10 && user_cards[-1][1] == 11
-          user_score += 11
-        elsif user_score >= 11 && user_cards[-1][1] == 11
-          user_score += 1
+        if @user_score <= 10 && user_cards[-1][1] == 11
+          @user_score += 11
+        elsif @user_score >= 11 && user_cards[-1][1] == 11
+          @user_score += 1
         else
-          user_score += user_cards[-1][1]
+          @user_score += user_cards[-1][1]
         end
       when 2
         puts 'Dealer думает...'
         sleep 3
-        if dealer_score > 17
+        if @dealer_score > 17
           puts 'Dealer пропускает ход!'
-        elsif dealer_score < 17
+        elsif @dealer_score < 17
           cards_on_hand(dealer_cards)
-          if dealer_score <= 10 && dealer_cards[-1][1] == 11
-            dealer_score += 11
-          elsif dealer_score >= 11 && dealer_cards[-1][1] == 11
-            dealer_score += 1
+          if @dealer_score <= 10 && dealer_cards[-1][1] == 11
+            @dealer_score += 11
+          elsif @dealer_score >= 11 && dealer_cards[-1][1] == 11
+            @dealer_score += 1
           else
-            dealer_score += dealer_cards[-1][1]
+            @dealer_score += dealer_cards[-1][1]
           end
         end
       when 3
         check_score
-      end
-
-      def check_score
-        if (user_score > 21 && dealer_score > 21) || (user_score == dealer_score)
-          puts 'Ничья!'
-          @userbalance += @bank/2
-          @dealerbalance += @bank
-        elsif user_score > dealer_score && user_score <= 21
-          puts "#{@username}: #{user_score} / Dealer: #{dealer_score}"
-          puts "Победил #{@username}!"
-          @userbalance += @bank
-        elsif user_score < dealer_score && dealer_score <= 21
-          puts "#{@username}: #{user_score} / Dealer: #{dealer_score}"
-          puts "Победил Dealer!"
-          @dealerbalance += @bank
-        end
       end
 
       check_score if user_cards.size == 3 && dealer_cards.size == 3
