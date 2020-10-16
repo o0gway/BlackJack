@@ -58,13 +58,13 @@ class Interface
       @dealer_cards = []
 
       def cards_on_hand(user)
-        user << @cards.delete_at(rand(0..@cards.size))
+        user << @cards.delete_at(rand(0..(@cards.size - 1)))
         user[-1][1]
       end
 
       @player_score += cards_on_hand(@player_cards) # First card
       cards_on_hand(@player_cards) # Second card
-      if @player_cards[-1][1] == @player_cards[0][1] && @player_cards[0][1] == 11
+      if (@player_cards[-1][1] == @player_cards[0][1]) && (@player_cards[0][1] == 11)
         @player_score += 1
       else
         @player_score += @player_cards[-1][1]
@@ -72,7 +72,7 @@ class Interface
 
       @dealer_score += cards_on_hand(@dealer_cards) # First card
       cards_on_hand(@dealer_cards) # Second card
-      if @dealer_cards[-1][1] == @dealer_cards[0][1] && @dealer_cards[0][1] == 11
+      if (@dealer_cards[-1][1] == @dealer_cards[0][1]) && (@dealer_cards[0][1] == 11)
         @dealer_score += 1
       else
         @dealer_score += @dealer_cards[-1][1]
@@ -104,9 +104,9 @@ class Interface
           puts
         elsif @dealer_score < 17
           cards_on_hand(@dealer_cards)
-          if @dealer_score <= 10 && @dealer_cards[-1][1] == 11
+          if (@dealer_score <= 10) && (@dealer_cards[-1][1] == 11)
             @dealer_score += 11
-          elsif @dealer_score >= 11 && @dealer_cards[-1][1] == 11
+          elsif (@dealer_score >= 11) && (@dealer_cards[-1][1] == 11)
             @dealer_score += 1
           else
             @dealer_score += @dealer_cards[-1][1]
@@ -115,7 +115,7 @@ class Interface
       end
 
       def check_score
-        if (@player_score > 21 && @dealer_score > 21) || (@player_score == @dealer_score)
+        if ((@player_score > 21) && (@dealer_score > 21)) || (@player_score == @dealer_score)
           puts '*' * 80
           puts "Карты игрока: "
           show_cards(@player_cards)
@@ -130,7 +130,7 @@ class Interface
           puts
           @userbalance += (@bank / 2)
           @dealerbalance += (@bank / 2)
-        elsif (@player_score > @dealer_score) && (@player_score <= 21)
+        elsif ((@player_score > @dealer_score) && (@player_score <= 21)) || ((@player_score < @dealer_score) && (@dealer_score > 21))
           puts '*' * 80
           puts "Карты игрока: "
           show_cards(@player_cards)
@@ -144,7 +144,7 @@ class Interface
           puts "Победил #{@player_name}!"
           puts
           @userbalance += @bank
-        elsif (@player_score < @dealer_score) && (@dealer_score <= 21)
+        elsif ((@player_score < @dealer_score) && (@dealer_score <= 21)) || ((@player_score > @dealer_score) && (@player_score > 21))
           puts '*' * 80
           puts "Карты игрока: "
           show_cards(@player_cards)
@@ -203,7 +203,6 @@ class Interface
         end
       end
 
-      # check_score if @player_cards.size == 3 && @dealer_cards.size == 3
       puts 'Баланс на конец игры: '
       puts "Игрок #{@player_name}: #{@userbalance} / Dealer: #{@dealerbalance}"
       puts '*' * 80
