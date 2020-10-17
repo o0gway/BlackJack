@@ -3,6 +3,7 @@
 require 'byebug'
 require_relative 'player'
 require_relative 'dealer'
+require_relative 'desk'
 
 puts
 puts '*' * 80
@@ -39,13 +40,8 @@ class Interface
 
       goodbye if @player.balance == 0 || @dealer.balance == 0
 
-      @cards = {
-      "2\u2665": 2, "3\u2665": 3, "4\u2665": 4, "5\u2665": 5, "6\u2665": 6, "7\u2665": 7, "8\u2665": 8, "9\u2665": 9, "10\u2665": 10, "V\u2665": 10, "D\u2665": 10, "K\u2665": 10, "T\u2665": 11,
-      "2\u2663": 2, "3\u2663": 3, "4\u2663": 4, "5\u2663": 5, "6\u2663": 6, "7\u2663": 7, "8\u2663": 8, "9\u2663": 9, "10\u2663": 10, "V\u2663": 10, "D\u2663": 10, "K\u2663": 10, "T\u2663": 11,
-      "2\u2666": 2, "3\u2666": 3, "4\u2666": 4, "5\u2666": 5, "6\u2666": 6, "7\u2666": 7, "8\u2666": 8, "9\u2666": 9, "10\u2666": 10, "V\u2666": 10, "D\u2666": 10, "K\u2666": 10, "T\u2666": 11,
-      "2\u2660": 2, "3\u2660": 3, "4\u2660": 4, "5\u2660": 5, "6\u2660": 6, "7\u2660": 7, "8\u2660": 8, "9\u2660": 9, "10\u2660": 10, "V\u2660": 10, "D\u2660": 10, "K\u2660": 10, "T\u2660": 11
-      }
-      @cards = @cards.to_a
+
+      @desk = Desk.new
 
       @bank = 0
       @dealer_score = 0
@@ -57,7 +53,7 @@ class Interface
       goodbye if player_choice != ''
 
       puts '*' * 80
-      puts "Ставка игры $10"
+      puts 'Ставка игры $10'
       @player.balance -= @bet
       @dealer.balance -= @bet
       @bank = 20
@@ -65,7 +61,7 @@ class Interface
       @dealer_cards = []
 
       def cards_on_hand(user)
-        user << @cards.delete_at(rand(0..(@cards.size - 1)))
+        user << @desk.cards.delete_at(rand(0..(@desk.cards.size - 1)))
         user[-1][1]
       end
 
@@ -86,7 +82,7 @@ class Interface
       end
 
       def show_cards(player)
-        player.to_h.each_key.with_index(1) {|card, index| puts "#{index}. #{card}"}
+        player.to_h.each_key.with_index(1) { |card, index| puts "#{index}. #{card}" }
       end
 
       def player_turn
