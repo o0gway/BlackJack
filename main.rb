@@ -1,36 +1,43 @@
-# coding: utf-8
 # BlackJack
+
 require 'byebug'
+require_relative 'player'
+require_relative 'dealer'
+
 puts
 puts '*' * 80
 puts 'Добро пожаловать в игру BlackJack'
 puts
 class Interface
   def run
+
     begin
       print 'Пожалуйста введите ваше имя: '
-      @player_name = gets.strip.capitalize
-      raise 'Имя не может быть пустым!' if @player_name == ''
+      name = gets.strip.capitalize
+      raise 'Имя не может быть пустым!' if name == ''
+
+      @player = Player.new(name)
     rescue StandardError => e
       puts "Error: #{e.message}"
       retry
     end
 
-    @userbalance = 100
-    @dealerbalance = 100
+    @dealer = Dealer.new
+
     @bet = 10
+
     puts 'Баланс на начало игры: '
-    puts "Игрок #{@player_name}: #{@userbalance} / Dealer: #{@dealerbalance}"
+    puts "Игрок #{@player.name}: #{@player.balance} / Dealer: #{@dealer.balance}"
     puts
 
     loop do
       def goodbye
-        puts "#{@player_name}, ваш баланс: $#{@userbalance}"
+        puts "#{@player.name}, ваш баланс: $#{@player.balance}"
         puts 'Досвидание, будем ждать вас еще!'
         exit
       end
 
-      goodbye if @userbalance == 0 || @dealerbalance == 0
+      goodbye if @player.balance == 0 || @dealer.balance == 0
 
       @cards = {
       "2\u2665": 2, "3\u2665": 3, "4\u2665": 4, "5\u2665": 5, "6\u2665": 6, "7\u2665": 7, "8\u2665": 8, "9\u2665": 9, "10\u2665": 10, "V\u2665": 10, "D\u2665": 10, "K\u2665": 10, "T\u2665": 11,
@@ -45,14 +52,14 @@ class Interface
       @player_score = 0
 
       print 'Сыграем? Нажимите Enter, чтобы продложить...'
-      userchoice = gets.strip
+      player_choice  = gets.strip
 
-      goodbye if userchoice != ''
+      goodbye if player_choice != ''
 
       puts '*' * 80
       puts "Ставка игры $10"
-      @userbalance -= @bet
-      @dealerbalance -= @bet
+      @player.balance -= @bet
+      @dealer.balance -= @bet
       @bank = 20
       @player_cards = []
       @dealer_cards = []
@@ -117,53 +124,53 @@ class Interface
       def check_score
         if ((@player_score > 21) && (@dealer_score > 21)) || (@player_score == @dealer_score)
           puts '*' * 80
-          puts "Карты игрока: "
+          puts 'Карты игрока: '
           show_cards(@player_cards)
           puts
-          puts "Карты Dealer: "
+          puts 'Карты Dealer: '
           show_cards(@dealer_cards)
           puts
-          puts "Очки игроков: "
-          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts 'Очки игроков: '
+          puts "#{@player.name}: #{@player_score} / Dealer: #{@dealer_score}"
           puts
           puts 'Ничья!'
           puts
-          @userbalance += (@bank / 2)
-          @dealerbalance += (@bank / 2)
+          @player.balance += (@bank / 2)
+          @dealer.balance += (@bank / 2)
         elsif ((@player_score > @dealer_score) && (@player_score <= 21)) || ((@player_score < @dealer_score) && (@dealer_score > 21))
           puts '*' * 80
-          puts "Карты игрока: "
+          puts 'Карты игрока: '
           show_cards(@player_cards)
           puts
-          puts "Карты Dealer: "
+          puts 'Карты Dealer: '
           show_cards(@dealer_cards)
           puts
           puts '*' * 80
-          puts "Очки игроков: "
-          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
-          puts "Победил #{@player_name}!"
+          puts 'Очки игроков: '
+          puts "#{@player.name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts "Победил #{@player.name}!"
           puts
-          @userbalance += @bank
+          @player.balance += @bank
         elsif ((@player_score < @dealer_score) && (@dealer_score <= 21)) || ((@player_score > @dealer_score) && (@player_score > 21))
           puts '*' * 80
-          puts "Карты игрока: "
+          puts 'Карты игрока: '
           show_cards(@player_cards)
           puts
-          puts "Карты Dealer: "
+          puts 'Карты Dealer: '
           show_cards(@dealer_cards)
           puts
-          puts "Очки игроков: "
-          puts "#{@player_name}: #{@player_score} / Dealer: #{@dealer_score}"
+          puts 'Очки игроков: '
+          puts "#{@player.name}: #{@player_score} / Dealer: #{@dealer_score}"
           puts '*' * 80
           puts 'Победил Dealer!'
           puts
-          @dealerbalance += @bank
+          @dealer.balance += @bank
         end
       end
 
       while @player_cards.size != 3 && @dealer_cards.size != 3
         begin
-          puts "Ваши карты: "
+          puts 'Ваши карты: '
           show_cards(@player_cards)
           puts
           puts "Ваши текущие очки: #{@player_score}"
@@ -173,16 +180,17 @@ class Interface
           puts '2. Пропустить ход'
           puts '3. Открыть карты'
           print 'Выберите действие: '
-          user_choice = gets.to_i
+          player_choice = gets.to_i
           puts
-          raise 'Такого пункта в списке нет. Пожалуйста попробуйте еще раз!' if user_choice != 1 && user_choice != 2 && user_choice != 3
+          raise 'Такого пункта в списке нет. Пожалуйста попробуйте еще раз!' if player_choice != 1 && player_choice != 2 && player_choice != 3
+
           puts
         rescue StandardError => e
           puts "Error: #{e.message}"
           retry
         end
 
-        case user_choice
+        case player_choice
         when 1
           player_turn
           if @dealer_cards.size != 3
@@ -204,7 +212,7 @@ class Interface
       end
 
       puts 'Баланс на конец игры: '
-      puts "Игрок #{@player_name}: #{@userbalance} / Dealer: #{@dealerbalance}"
+      puts "Игрок #{@player.name}: #{@player.balance} / Dealer: #{@dealer.balance}"
       puts '*' * 80
       puts
     end
