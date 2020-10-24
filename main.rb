@@ -11,42 +11,33 @@ puts '*' * 80
 puts 'Добро пожаловать в игру BlackJack'
 puts
 class Interface
-  def run
+  attr_accessor :game
+  def initialize(game)
+    @game = game
+  end
 
-    begin
-      print 'Пожалуйста введите ваше имя: '
-      name = gets.strip.capitalize
-      raise 'Имя не может быть пустым!' if name == ''
-
-      @player = Player.new(name)
-    rescue StandardError => e
-      puts "Error: #{e.message}"
-      retry
-    end
-
-    @dealer = Dealer.new
+  def start_game
+    puts 'Баланс на начало игры: '
+    puts "Игрок #{game.player.name}: #{game.player.balance} / Dealer: #{game.dealer.balance}"
+    puts
 
     @bet = 10
-
-    puts 'Баланс на начало игры: '
-    puts "Игрок #{@player.name}: #{@player.balance} / Dealer: #{@dealer.balance}"
-    puts
+    @bank = 20
 
     loop do
       def goodbye
-        puts "#{@player.name}, ваш баланс: $#{@player.balance}"
+        puts "#{game.player.name}, ваш баланс: $#{game.player.balance}"
         puts 'Досвидание, будем ждать вас еще!'
         exit
       end
 
-      goodbye if @player.balance == 0 || @dealer.balance == 0
+      goodbye if game.player.balance.zero? || game.dealer.balance.zero?
 
 
       @deck = Deck.new
 
-      @bank = 0
-      @dealer.score = 0
-      @player.score = 0
+      game.dealer.score = 0
+      game.player.score = 0
 
       print 'Сыграем? Нажимите Enter, чтобы продложить...'
       player_choice  = gets.strip
@@ -55,31 +46,31 @@ class Interface
 
       puts '*' * 80
       puts 'Ставка игры $10'
-      @player.balance -= @bet
-      @dealer.balance -= @bet
-      @bank = 20
-      @player.cards = []
-      @dealer.cards = []
+      game.player.balance -= @bet
+      game.dealer.balance -= @bet
+
+      game.player.cards = []
+      game.dealer.cards = []
 
       def cards_on_hand(user)
         user << @deck.cards.delete_at(rand(0..(@deck.cards.size - 1)))
         user[-1].value
       end
 
-      @player.score += cards_on_hand(@player.cards) # First card
-      cards_on_hand(@player.cards) # Second card
-      if (@player.cards[-1].value == @player.cards[0].value) && (@player.cards[0].value == 11)
-        @player.score += 1
+      game.player.score += cards_on_hand(game.player.cards) # First card
+      cards_on_hand(game.player.cards) # Second card
+      if (game.player.cards[-1].value == game.player.cards[0].value) && (game.player.cards[0].value == 11)
+        game.player.score += 1
       else
-        @player.score += @player.cards[-1].value
+        game.player.score += game.player.cards[-1].value
       end
 
-      @dealer.score += cards_on_hand(@dealer.cards) # First card
-      cards_on_hand(@dealer.cards) # Second card
-      if (@dealer.cards[-1].value == @dealer.cards[0].value) && (@dealer.cards[0].value == 11)
-        @dealer.score += 1
+      game.dealer.score += cards_on_hand(game.dealer.cards) # First card
+      cards_on_hand(game.dealer.cards) # Second card
+      if (game.dealer.cards[-1].value == game.dealer.cards[0].value) && (game.dealer.cards[0].value == 11)
+        game.dealer.score += 1
       else
-        @dealer.score += @dealer.cards[-1].value
+        game.dealer.score += game.dealer.cards[-1].value
       end
 
       def show_cards(player)
@@ -87,13 +78,13 @@ class Interface
       end
 
       def player_turn
-        cards_on_hand(@player.cards) # Third card
-        if (@player.score <= 10) && (@player.cards[-1].value == 11)
-          @player.score += 11
-        elsif (@player.score >= 11) && (@player.cards[-1].value == 11)
-          @player.score += 1
+        cards_on_hand(game.player.cards) # Third card
+        if (game.player.score <= 10) && (game.player.cards[-1].value == 11)
+          game.player.score += 11
+        elsif (game.player.score >= 11) && (game.player.cards[-1].value == 11)
+          game.player.score += 1
         else
-          @player.score += @player.cards[-1].value
+          game.player.score += game.player.cards[-1].value
         end
       end
 
@@ -106,17 +97,17 @@ class Interface
         puts
         puts
 
-        if @dealer.score >= 17
+        if game.dealer.score >= 17
           puts 'Dealer пропускает ход!'
           puts
-        elsif @dealer.score < 17
-          cards_on_hand(@dealer.cards)
-          if (@dealer.score <= 10) && (@dealer.cards[-1].value == 11)
-            @dealer.score += 11
-          elsif (@dealer.score >= 11) && (@dealer.cards[-1].value == 11)
-            @dealer.score += 1
+        elsif game.dealer.score < 17
+          cards_on_hand(game.dealer.cards)
+          if (game.dealer.score <= 10) && (game.dealer.cards[-1].value == 11)
+            game.dealer.score += 11
+          elsif (game.dealer.score >= 11) && (game.dealer.cards[-1].value == 11)
+            game.dealer.score += 1
           else
-            @dealer.score += @dealer.cards[-1].value
+            game.dealer.score += game.dealer.cards[-1].value
           end
         end
       end
@@ -124,43 +115,43 @@ class Interface
       def win_information
         puts '*' * 80
         puts 'Карты игрока: '
-        show_cards(@player.cards)
+        show_cards(game.player.cards)
         puts
         puts 'Карты Dealer: '
-        show_cards(@dealer.cards)
+        show_cards(game.dealer.cards)
         puts
         puts '*' * 80
         puts 'Очки игроков: '
-        puts "#{@player.name}: #{@player.score} / Dealer: #{@dealer.score}"
+        puts "#{game.player.name}: #{game.player.score} / Dealer: #{game.dealer.score}"
         puts
       end
 
       def check_score
-        if ((@player.score > 21) && (@dealer.score > 21)) || (@player.score == @dealer.score)
+        if ((game.player.score > 21) && (game.dealer.score > 21)) || (game.player.score == game.dealer.score)
           win_information
           puts 'Ничья!'
           puts
-          @player.balance += (@bank / 2)
-          @dealer.balance += (@bank / 2)
-        elsif ((@player.score > @dealer.score) && (@player.score <= 21)) || ((@player.score < @dealer.score) && (@dealer.score > 21))
+          game.player.balance += (@bank / 2)
+          game.dealer.balance += (@bank / 2)
+        elsif ((game.player.score > game.dealer.score) && (game.player.score <= 21)) || ((game.player.score < game.dealer.score) && (game.dealer.score > 21))
           win_information
-          puts "Победил #{@player.name}!"
+          puts "Победил #{game.player.name}!"
           puts
-          @player.balance += @bank
-        elsif ((@player.score < @dealer.score) && (@dealer.score <= 21)) || ((@player.score > @dealer.score) && (@player.score > 21))
+          game.player.balance += @bank
+        elsif ((game.player.score < game.dealer.score) && (game.dealer.score <= 21)) || ((game.player.score > game.dealer.score) && (game.player.score > 21))
           win_information
           puts 'Победил Dealer!'
           puts
-          @dealer.balance += @bank
+          game.dealer.balance += @bank
         end
       end
 
-      while @player.cards.size != 3 && @dealer.cards.size != 3
+      while game.player.cards.size != 3 && game.dealer.cards.size != 3
         begin
           puts 'Ваши карты: '
-          show_cards(@player.cards)
+          show_cards(game.player.cards)
           puts
-          puts "Ваши текущие очки: #{@player.score}"
+          puts "Ваши текущие очки: #{game.player.score}"
           puts
           puts '1. Взять еще одну карту'
           puts '2. Пропустить ход'
@@ -180,7 +171,7 @@ class Interface
         case player_choice
         when 1
           player_turn
-          if @dealer.cards.size != 3
+          if game.dealer.cards.size != 3
             dealer_turn
             check_score
             break
@@ -199,11 +190,47 @@ class Interface
       end
 
       puts 'Баланс на конец игры: '
-      puts "Игрок #{@player.name}: #{@player.balance} / Dealer: #{@dealer.balance}"
+      puts "Игрок #{game.player.name}: #{game.player.balance} / Dealer: #{game.dealer.balance}"
       puts '*' * 80
       puts
     end
   end
 end
 
-Interface.new.run
+class BlackJack
+  def initialize
+
+    dealer = Dealer.new
+    game = Game.new(create_player, dealer)
+    terminal = Interface.new(game)
+    terminal.start_game
+  end
+
+  def create_player
+    print 'Пожалуйста введите ваше имя: '
+    name = gets.strip.capitalize
+    raise 'Имя не может быть пустым!' if name == ''
+
+    player = Player.new(name)
+  rescue StandardError => e
+    puts "Error: #{e.message}"
+    retry
+  end
+
+
+end
+
+class Game
+  attr_accessor :player, :dealer
+
+  def initialize(player, dealer)
+    @player = player
+    @dealer = dealer
+  end
+
+end
+
+BlackJack.new
+
+
+

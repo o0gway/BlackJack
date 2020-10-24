@@ -8,4 +8,8 @@ class Player
     @cards = []
     @score = 0
   end
+
+  # def validate!
+
+  # end
 end

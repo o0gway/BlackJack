@@ -1,5 +1,5 @@
-# coding: utf-8
 # BlackJack
+
 require 'byebug'
 puts
 puts '*' * 80
@@ -30,7 +30,7 @@ class Interface
         exit
       end
 
-      goodbye if @userbalance == 0 || @dealerbalance == 0
+      goodbye if @userbalance.zero? || @dealerbalance.zero?
 
       @cards = {
       "2\u2665": 2, "3\u2665": 3, "4\u2665": 4, "5\u2665": 5, "6\u2665": 6, "7\u2665": 7, "8\u2665": 8, "9\u2665": 9, "10\u2665": 10, "V\u2665": 10, "D\u2665": 10, "K\u2665": 10, "T\u2665": 11,
