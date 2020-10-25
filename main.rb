@@ -5,6 +5,7 @@ require_relative 'player'
 require_relative 'dealer'
 require_relative 'deck'
 require_relative 'card'
+require_relative 'game'
 
 puts
 puts '*' * 80
@@ -212,18 +213,6 @@ class BlackJack
   rescue StandardError => e
     puts "Error: #{e.message}"
     retry
-  end
-end
-
-class Game
-  attr_reader :bet, :bank
-  attr_accessor :player, :dealer
-
-  def initialize(player, dealer)
-    @player = player
-    @dealer = dealer
-    @bet = 10
-    @bank = 20
   end
 end
 
