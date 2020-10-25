@@ -12,6 +12,7 @@ puts 'Добро пожаловать в игру BlackJack'
 puts
 class Interface
   attr_accessor :game
+
   def initialize(game)
     @game = game
   end
@@ -20,9 +21,6 @@ class Interface
     puts 'Баланс на начало игры: '
     puts "Игрок #{game.player.name}: #{game.player.balance} / Dealer: #{game.dealer.balance}"
     puts
-
-    @bet = 10
-    @bank = 20
 
     loop do
       def goodbye
@@ -46,8 +44,8 @@ class Interface
 
       puts '*' * 80
       puts 'Ставка игры $10'
-      game.player.balance -= @bet
-      game.dealer.balance -= @bet
+      game.player.balance -= game.bet
+      game.dealer.balance -= game.bet
 
       game.player.cards = []
       game.dealer.cards = []
@@ -91,7 +89,7 @@ class Interface
       def dealer_turn
         print 'Dealer думает'
         5.times do
-          sleep 0.4
+          sleep 0.3
           print '.'
         end
         puts
@@ -131,18 +129,18 @@ class Interface
           win_information
           puts 'Ничья!'
           puts
-          game.player.balance += (@bank / 2)
-          game.dealer.balance += (@bank / 2)
+          game.player.balance += (game.bank / 2)
+          game.dealer.balance += (game.bank / 2)
         elsif ((game.player.score > game.dealer.score) && (game.player.score <= 21)) || ((game.player.score < game.dealer.score) && (game.dealer.score > 21))
           win_information
           puts "Победил #{game.player.name}!"
           puts
-          game.player.balance += @bank
+          game.player.balance += game.bank
         elsif ((game.player.score < game.dealer.score) && (game.dealer.score <= 21)) || ((game.player.score > game.dealer.score) && (game.player.score > 21))
           win_information
           puts 'Победил Dealer!'
           puts
-          game.dealer.balance += @bank
+          game.dealer.balance += game.bank
         end
       end
 
@@ -199,7 +197,6 @@ end
 
 class BlackJack
   def initialize
-
     dealer = Dealer.new
     game = Game.new(create_player, dealer)
     terminal = Interface.new(game)
@@ -216,21 +213,18 @@ class BlackJack
     puts "Error: #{e.message}"
     retry
   end
-
-
 end
 
 class Game
+  attr_reader :bet, :bank
   attr_accessor :player, :dealer
 
   def initialize(player, dealer)
     @player = player
     @dealer = dealer
+    @bet = 10
+    @bank = 20
   end
-
 end
 
 BlackJack.new
-
-
-
