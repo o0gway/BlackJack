@@ -8,4 +8,8 @@ class Game
     @bet = 10
     @bank = 20
   end
+
+  def show_cards(player)
+    player.each.with_index(1) { |card, index| puts "#{index}. #{card.rank}#{card.suit}" }
+  end
 end

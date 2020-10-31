@@ -51,33 +51,24 @@ class Interface
       game.player.cards = []
       game.dealer.cards = []
 
-      def cards_on_hand(user)
-        user << @deck.cards.delete_at(rand(0..(@deck.cards.size - 1)))
-        user[-1].value
-      end
-
-      game.player.score += cards_on_hand(game.player.cards) # First card
-      cards_on_hand(game.player.cards) # Second card
+      game.player.score += game.player.take_card(game.player.cards, @deck) # First card
+      game.player.take_card(game.player.cards, @deck) # Second card
       if (game.player.cards[-1].value == game.player.cards[0].value) && (game.player.cards[0].value == 11)
         game.player.score += 1
       else
         game.player.score += game.player.cards[-1].value
       end
 
-      game.dealer.score += cards_on_hand(game.dealer.cards) # First card
-      cards_on_hand(game.dealer.cards) # Second card
+      game.dealer.score += game.player.take_card(game.dealer.cards, @deck) # First card
+      game.player.take_card(game.dealer.cards, @deck) # Second card
       if (game.dealer.cards[-1].value == game.dealer.cards[0].value) && (game.dealer.cards[0].value == 11)
         game.dealer.score += 1
       else
         game.dealer.score += game.dealer.cards[-1].value
       end
 
-      def show_cards(player)
-        player.each.with_index(1) { |card, index| puts "#{index}. #{card.rank}#{card.suit}" }
-      end
-
       def player_turn
-        cards_on_hand(game.player.cards) # Third card
+        game.player.take_card(game.player.cards, @deck) # Third card
         if (game.player.score <= 10) && (game.player.cards[-1].value == 11)
           game.player.score += 11
         elsif (game.player.score >= 11) && (game.player.cards[-1].value == 11)
@@ -100,7 +91,7 @@ class Interface
           puts 'Dealer пропускает ход!'
           puts
         elsif game.dealer.score < 17
-          cards_on_hand(game.dealer.cards)
+          game.player.take_card(game.dealer.cards, @deck)
           if (game.dealer.score <= 10) && (game.dealer.cards[-1].value == 11)
             game.dealer.score += 11
           elsif (game.dealer.score >= 11) && (game.dealer.cards[-1].value == 11)
@@ -114,10 +105,10 @@ class Interface
       def win_information
         puts '*' * 80
         puts 'Карты игрока: '
-        show_cards(game.player.cards)
+        game.show_cards(game.player.cards)
         puts
         puts 'Карты Dealer: '
-        show_cards(game.dealer.cards)
+        game.show_cards(game.dealer.cards)
         puts
         puts '*' * 80
         puts 'Очки игроков: '
@@ -148,7 +139,7 @@ class Interface
       while game.player.cards.size != 3 && game.dealer.cards.size != 3
         begin
           puts 'Ваши карты: '
-          show_cards(game.player.cards)
+          game.show_cards(game.player.cards)
           puts
           puts "Ваши текущие очки: #{game.player.score}"
           puts
