@@ -39,7 +39,7 @@ class Interface
       game.player.score = 0
 
       print 'Сыграем? Нажимите Enter, чтобы продложить...'
-      player_choice  = gets.strip
+      player_choice = gets.strip
 
       goodbye if player_choice != ''
 
@@ -200,7 +200,7 @@ class BlackJack
     name = gets.strip.capitalize
     raise 'Имя не может быть пустым!' if name == ''
 
-    player = Player.new(name)
+    Player.new(name)
   rescue StandardError => e
     puts "Error: #{e.message}"
     retry
