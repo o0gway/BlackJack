@@ -102,24 +102,15 @@ class Interface
         puts
       end
 
-      def check_score
-        if ((game.player.score > 21) && (game.dealer.score > 21)) || (game.player.score == game.dealer.score)
-          win_information
+      def check_score(winner)
+        win_information
+        if winner == nil
           puts 'Ничья!'
           puts
-          game.draw(game.player)
-          game.draw(game.dealer)
-        elsif ((game.player.score > game.dealer.score) && (game.player.score <= 21)) || ((game.player.score < game.dealer.score) && (game.dealer.score > 21))
-          win_information
-          puts "Победил #{game.player.name}!"
-          puts
-          game.player.balance += game.bank
-        elsif ((game.player.score < game.dealer.score) && (game.dealer.score <= 21)) || ((game.player.score > game.dealer.score) && (game.player.score > 21))
-          win_information
-          puts 'Победил Dealer!'
-          puts
-          game.dealer.balance += game.bank
+          return
         end
+        puts "Победил #{winner.name}!"
+        puts
       end
 
       while game.player.cards.size != 3 && game.dealer.cards.size != 3
@@ -149,18 +140,18 @@ class Interface
           player_turn
           if game.dealer.cards.size != 3
             dealer_turn
-            check_score
+            check_score(game.winner)
             break
           else
-            check_score
+            check_score(game.winner)
             break
           end
         when 2
           dealer_turn
-          check_score
+          check_score(game.winner)
           break
         when 3
-          check_score
+          check_score(game.winner)
           break
         end
       end
