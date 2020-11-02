@@ -53,19 +53,11 @@ class Interface
 
       game.player.score += game.player.take_card(game.player.cards, @deck) # First card
       game.player.take_card(game.player.cards, @deck) # Second card
-      if (game.player.cards[-1].value == game.player.cards[0].value) && (game.player.cards[0].value == 11)
-        game.player.score += 1
-      else
-        game.player.score += game.player.cards[-1].value
-      end
+      game.check_for_ace(game.player)
 
       game.dealer.score += game.player.take_card(game.dealer.cards, @deck) # First card
       game.player.take_card(game.dealer.cards, @deck) # Second card
-      if (game.dealer.cards[-1].value == game.dealer.cards[0].value) && (game.dealer.cards[0].value == 11)
-        game.dealer.score += 1
-      else
-        game.dealer.score += game.dealer.cards[-1].value
-      end
+      game.check_for_ace(game.dealer)
 
       def player_turn
         game.player.take_card(game.player.cards, @deck) # Third card
@@ -92,13 +84,7 @@ class Interface
           puts
         elsif game.dealer.score < 17
           game.player.take_card(game.dealer.cards, @deck)
-          if (game.dealer.score <= 10) && (game.dealer.cards[-1].value == 11)
-            game.dealer.score += 11
-          elsif (game.dealer.score >= 11) && (game.dealer.cards[-1].value == 11)
-            game.dealer.score += 1
-          else
-            game.dealer.score += game.dealer.cards[-1].value
-          end
+          game.check_for_ace_third_card
         end
       end
 
@@ -121,8 +107,8 @@ class Interface
           win_information
           puts 'Ничья!'
           puts
-          game.player.balance += (game.bank / 2)
-          game.dealer.balance += (game.bank / 2)
+          game.draw(game.player)
+          game.draw(game.dealer)
         elsif ((game.player.score > game.dealer.score) && (game.player.score <= 21)) || ((game.player.score < game.dealer.score) && (game.dealer.score > 21))
           win_information
           puts "Победил #{game.player.name}!"
