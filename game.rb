@@ -37,14 +37,11 @@ class Game
 
   def winner
     if ((player.score > 21) && (dealer.score > 21)) || (player.score == dealer.score)
-      draw(player)
-      draw(dealer)
       nil
     elsif ((player.score > dealer.score) && (player.score <= 21)) || ((player.score < dealer.score) && (dealer.score > 21))
-      give_money_winner(player)
       player
     elsif ((player.score < dealer.score) && (dealer.score <= 21)) || ((player.score > dealer.score) && (player.score > 21))
-      give_money_winner(dealer)
+      # give_money_winner(dealer)
       dealer
     end
   end

@@ -105,10 +105,13 @@ class Interface
       def check_score(winner)
         win_information
         if winner == nil
+          game.draw(game.player)
+          game.draw(game.dealer)
           puts 'Ничья!'
           puts
           return
         end
+        game.give_money_winner(game.winner)
         puts "Победил #{winner.name}!"
         puts
       end
